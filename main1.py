@@ -62,7 +62,6 @@ class Enemy(arcade.Sprite):
 
 
 class Window(arcade.Window):
-
     def __init__(self, width, height, title):
         super().__init__(width, height, title)
         file_path = os.path.dirname(os.path.abspath(__file__))
@@ -87,13 +86,20 @@ class Window(arcade.Window):
 
     def update(self, delta_time):
         self.bullet_list.update()
+        enemycounter = 0
         for e in self.enemy_list:
-            # check for collision
-            # for every bullet that hits, decrease the hp and then see if it dies
-            # increase the score
-            # e.kill() will remove the enemy sprite from the game
-            # the pass statement is a placeholder. Remove line 81 when you add your code
-            pass
+            enemycounter += 1
+            if e.collides_with_list(self.bullet_list):
+                removal_list = e.collides_with_list(self.bullet_list)
+                for c in removal_list:
+                    c.kill()
+                e.hp = e.hp - BULLET_DAMAGE
+                self.score = self.score + 10
+                if e.hp <= 0:
+                    e.kill()
+                    self.score = self.score + 100
+        if enemycounter == 0:
+            quit()
 
     def on_draw(self):
         arcade.start_render()
@@ -110,15 +116,18 @@ class Window(arcade.Window):
 
     def on_mouse_press(self, x, y, button, modifiers):
         if button == arcade.MOUSE_BUTTON_LEFT:
-            #fire a bullet
-            #the pass statement is a placeholder. Remove line 97 when you add your code
-            pass
+            x = self.player.center_x
+            y = self.player.center_y + 15
+            bullet = Bullet((x,y),(0,10),BULLET_DAMAGE)
+            self.bullet_list.append(bullet)
 
 def main():
     window = Window(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_TITLE)
     window.setup()
     arcade.run()
+    
 
 
 if __name__ == "__main__":
     main()
+    
